@@ -73,8 +73,8 @@ mod tests {
     fn create_user_claims() -> Claims {
         Claims {
             sub: crate::domain::models::claims::Subject("user-123".to_string()),
-            iss: "https://auth.ferriscord.com".to_string(),
-            aud: Some("ferriscord-api".to_string()),
+            iss: "https://auth.beep.com".to_string(),
+            aud: Some("beep-api".to_string()),
             email: Some("john.doe@example.com".to_string()),
             email_verified: true,
             exp: None,
@@ -100,8 +100,8 @@ mod tests {
     fn create_service_account_claims() -> Claims {
         Claims {
             sub: crate::domain::models::claims::Subject("service-123".to_string()),
-            iss: "https://auth.ferriscord.com".to_string(),
-            aud: Some("ferriscord-api".to_string()),
+            iss: "https://auth.beep.com".to_string(),
+            aud: Some("beep-api".to_string()),
             email: None,
             email_verified: false,
             name: None,
@@ -110,7 +110,7 @@ mod tests {
             given_name: None,
             family_name: None,
             scope: "admin:all read:users write:messages".to_string(),
-            client_id: Some("ferriscord-bot".to_string()),
+            client_id: Some("beep-bot".to_string()),
             extra: {
                 let mut map = serde_json::Map::new();
                 map.insert(
@@ -148,7 +148,7 @@ mod tests {
         match identity {
             Identity::Client(client) => {
                 assert_eq!(client.id, "service-123");
-                assert_eq!(client.client_id, "ferriscord-bot");
+                assert_eq!(client.client_id, "beep-bot");
             }
             Identity::User(_) => panic!("Expected Client, got User"),
         }

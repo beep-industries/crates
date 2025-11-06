@@ -87,8 +87,8 @@ mod tests {
     fn test_token_decode_manual_success() {
         let test_claims = json!({
             "sub": "user-123",
-            "iss": "https://auth.ferriscord.com",
-            "aud": "ferriscord-api",
+            "iss": "https://auth.beep.com",
+            "aud": "beep-api",
             "exp": 1735689600,
             "email": "john.doe@example.com",
             "email_verified": true,
@@ -104,7 +104,7 @@ mod tests {
         assert!(result.is_ok());
         let jwt = result.unwrap();
         assert_eq!(jwt.claims.sub.0, "user-123");
-        assert_eq!(jwt.claims.iss, "https://auth.ferriscord.com");
+        assert_eq!(jwt.claims.iss, "https://auth.beep.com");
         assert_eq!(jwt.token.0, jwt_token);
     }
 
@@ -112,7 +112,7 @@ mod tests {
     fn test_token_extract_claims() {
         let test_claims = json!({
             "sub": "user-456",
-            "iss": "https://auth.ferriscord.com",
+            "iss": "https://auth.beep.com",
             "email": "jane@example.com",
             "email_verified": true,
             "scope": "admin",

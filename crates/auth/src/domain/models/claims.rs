@@ -114,7 +114,7 @@ mod tests {
     fn test_claims_with_extra_fields() {
         let json = r#"{
             "sub": "user-456",
-            "iss": "https://auth.ferriscord.com",
+            "iss": "https://auth.beep.com",
             "exp": 1735689600,
             "email": null,
             "scope": "openid connect",
