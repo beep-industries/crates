@@ -28,3 +28,13 @@ pub struct ServerArgs {
     )]
     pub port: u16,
 }
+
+impl Default for ServerArgs {
+    fn default() -> Self {
+        Self {
+            allowed_origins: vec![],
+            host: "0.0.0.0".into(),
+            port: 3333,
+        }
+    }
+}
