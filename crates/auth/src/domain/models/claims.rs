@@ -108,6 +108,8 @@ mod tests {
 
         assert_eq!(claims.sub.0, "14434cba-8f32-49bb-a39e-8378a7cddea3");
         assert_eq!(claims.iss, "http://localhost:8000/realms/master");
+        assert_eq!(claims.aud.unwrap(), "account");
+        assert_eq!(claims.exp.unwrap(), 1761117956);
     }
 
     #[test]

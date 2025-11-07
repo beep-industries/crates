@@ -1,3 +1,6 @@
+pub mod auth;
+pub mod log;
+
 #[derive(clap::Args, Debug, Clone)]
 pub struct ServerArgs {
     #[arg(
