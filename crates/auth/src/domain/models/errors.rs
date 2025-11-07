@@ -5,6 +5,9 @@ pub enum AuthError {
     #[error("invalid token: {message}")]
     InvalidToken { message: String },
 
+    #[error("token not found")]
+    TokenNotFound,
+
     #[error("network: {message}")]
     Network { message: String },
 

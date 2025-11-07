@@ -1,0 +1,15 @@
+[package]
+name = "beep-server"
+edition = "2024"
+version = "0.1.0"
+authors = ["nathael <pro.nathaelbonnal@gmail.com>"]
+license = "Apache-2.0"
+
+[dependencies]
+beep-auth = { path = "../auth" }
+axum = "0.8.6"
+axum-server = "0.7.2"
+clap = { version = "4.5.51", features = ["env", "derive"] }
+serde = "1.0.228"
+tracing = "0.1.41"
+thiserror = "2.0.17"
