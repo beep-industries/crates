@@ -203,6 +203,7 @@ dependencies = [
  "beep-auth",
  "clap",
  "serde",
+ "thiserror",
  "tracing",
 ]
 

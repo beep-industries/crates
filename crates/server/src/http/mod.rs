@@ -49,7 +49,7 @@ pub async fn auth_middleware<T>(
     next: Next,
 ) -> Result<Response, StatusCode>
 where
-    T: HasAuthRepository + Clone + Send + Sync + 'static,
+    T: HasAuthRepository + Send + Sync,
 {
     let auth_header = req
         .headers()
