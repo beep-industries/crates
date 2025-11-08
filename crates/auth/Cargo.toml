@@ -9,6 +9,7 @@ repository = "https://github.com/beep-industries/crates"
 documentation = "https://docs.rs/beep-auth"
 keywords = ["auth", "jwt", "iam", "beep"]
 rust-version = "1.90"
+readme = "README.md"
 
 
 [dependencies]
