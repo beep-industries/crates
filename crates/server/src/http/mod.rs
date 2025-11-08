@@ -4,10 +4,8 @@ use axum::{
     middleware::Next,
     response::Response,
 };
-use beep_auth::domain::{
-    models::{AuthError, Token},
-    ports::{AuthRepository, HasAuthRepository},
-};
+
+use beep_auth::{AuthError, AuthRepository, HasAuthRepository, Token};
 use tracing::{debug, error};
 
 pub mod response;

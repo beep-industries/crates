@@ -195,12 +195,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "beep-auth"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aed0d22e0d9c57f937cdf7e55bdccd458a236a736b1eb8349e0b8e7042116e5b"
+dependencies = [
+ "base64",
+ "chrono",
+ "jsonwebtoken",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
 name = "beep-server"
 version = "0.1.0"
 dependencies = [
  "axum",
  "axum-server",
- "beep-auth",
+ "beep-auth 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap",
  "serde",
  "thiserror",
