@@ -1,3 +1,11 @@
+//! OpenTelemetry setup for tracing and metrics used by the workspace.
+//!
+//! Public API
+//! - [`init`] — initialize telemetry and return an [`OtelGuard`]
+//! - [`OtelGuard::shutdown`] — gracefully shutdown providers and flush
+//!   buffered telemetry.
+//!
+
 use opentelemetry::{global, trace::TracerProvider as _, KeyValue};
 use opentelemetry_sdk::{
     metrics::{MeterProviderBuilder, PeriodicReader, SdkMeterProvider},
@@ -16,6 +24,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 use crate::domain::models::errors::TelemetryError;
 use crate::domain::models::config::Config;
 
+/// Build an OpenTelemetry `Resource` describing this service.
 fn resource() -> Resource {
     Resource::builder()
         .with_service_name(env!("CARGO_PKG_NAME"))
@@ -29,6 +38,7 @@ fn resource() -> Resource {
         .build()
 }
 
+/// Initialize and register a meter provider.
 fn init_meter_provider() -> Result<SdkMeterProvider, TelemetryError> {
     let exporter = opentelemetry_otlp::MetricExporter::builder()
         .with_tonic()
@@ -54,6 +64,7 @@ fn init_meter_provider() -> Result<SdkMeterProvider, TelemetryError> {
     Ok(meter_provider)
 }
 
+/// Initialize a tracer provider configured to export spans via OTLP.
 fn init_tracer_provider() -> Result<SdkTracerProvider, TelemetryError> {
     let exporter = opentelemetry_otlp::SpanExporter::builder()
         .with_tonic()
@@ -69,6 +80,7 @@ fn init_tracer_provider() -> Result<SdkTracerProvider, TelemetryError> {
         .build())
 }
 
+/// Configure and install the `tracing` subscriber that forwards
 fn init_tracing_subscriber() -> Result<OtelGuard, TelemetryError> {
     let tracer_provider = init_tracer_provider()?;
     let meter_provider = init_meter_provider()?;
@@ -96,7 +108,7 @@ pub struct OtelGuard {
 }
 
 impl OtelGuard {
-    /// Shutdown providers and flush any buffered telemetry.
+    /// Shutdown telemetry providers and flush any buffered telemetry.
     pub async fn shutdown(self) {
         let tracer_provider = self.tracer_provider;
         let meter_provider = self.meter_provider;
@@ -113,6 +125,8 @@ impl OtelGuard {
     }
 }
 
+/// Initialize telemetry for the application using the provided
+/// [`Config`].
 pub fn init(_config: &Config) -> Result<OtelGuard, TelemetryError> {
     let guard = init_tracing_subscriber()?;
 

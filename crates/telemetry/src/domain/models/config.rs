@@ -1,5 +1,6 @@
 use clap::Parser;
 
+/// Configuration used by the telemetry-enabled application.
 #[derive(Parser)]
 #[clap(name = "beep-content", version, about = "Content server for Beep")]
 pub struct Config {
