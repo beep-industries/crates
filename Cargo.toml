@@ -2,6 +2,7 @@
 members = [
     "crates/auth",
     "crates/server",
+    "crates/telemetry",
 ]
 
-resolver = "2"
+resolver = "3"
