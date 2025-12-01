@@ -80,7 +80,36 @@ fn init_tracer_provider() -> Result<SdkTracerProvider, TelemetryError> {
         .build())
 }
 
-/// Configure and install the `tracing` subscriber that forwards
+/// `tracing` subscriber init to forward traces and metrics to OpenTelemetry (OTLP) and logs to stdout.
+///
+/// - Initializes and configures an OpenTelemetry tracer provider (OTLP span exporter).
+/// - Initializes and configures an OpenTelemetry meter provider (OTLP metric exporter and
+///   a stdout metrics reader).
+/// - Builds a `tracing` subscriber registry
+///
+/// Return value
+/// - Success :[`OtelGuard`] owns the tracer and meter providers.
+///   Before shutting down the application call [`OtelGuard::shutdown`].
+///
+/// Parameters
+/// - void
+///
+/// Example
+/// ```rust
+/// # beep_telemetry::telemetry::{init_tracing_subscriber, OtelGuard};
+/// # beep_telemetry::domain::models::config::Config;
+/// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// let guard: OtelGuard = init_tracing_subscriber()?;
+///
+/// // Use `tracing` in the application:
+/// tracing::info!("application started");
+///
+/// // On shutdown, flush and shutdown the providers. Should be awaited.
+/// guard.shutdown().await;
+/// # Ok(())
+/// # }
+/// ```
+///
 fn init_tracing_subscriber() -> Result<OtelGuard, TelemetryError> {
     let tracer_provider = init_tracer_provider()?;
     let meter_provider = init_meter_provider()?;
