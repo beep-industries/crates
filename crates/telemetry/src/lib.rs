@@ -3,10 +3,8 @@
 //!
 //! This crate wires up OpenTelemetry (OTLP) tracing and metrics and
 //! provides a small public surface used by other crates to initialize
-//! telemetry. It adapters exporters for OTLP (via tonic) and a
-//! stdout fallback for metrics so you can inspect values locally.
+//! telemetry. 
 //!
-//! ```
 
 pub mod telemetry;
 pub mod domain;
