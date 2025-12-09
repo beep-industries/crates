@@ -4,6 +4,7 @@ edition = "2024"
 version = "0.1.0"
 authors = ["sarah <s.theoulle@outlook.fr>"]
 license = "Apache-2.0"
+description = "Telemetry library for Beep services"
 
 [dependencies]
 opentelemetry = "0.31.0"
