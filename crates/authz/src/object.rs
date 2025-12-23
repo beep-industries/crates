@@ -6,6 +6,7 @@ pub enum SpiceDbObject {
     Server(ObjectId),
     Channel(ObjectId),
     User(ObjectId),
+    PermissionOverride(ObjectId),
 }
 
 impl SpiceDbObject {
@@ -14,6 +15,7 @@ impl SpiceDbObject {
             SpiceDbObject::Server(id) => id.clone(),
             SpiceDbObject::Channel(id) => id.clone(),
             SpiceDbObject::User(id) => id.clone(),
+            SpiceDbObject::PermissionOverride(id) => id.clone(),
         }
     }
     pub(crate) fn object_name(&self) -> String {
@@ -21,6 +23,7 @@ impl SpiceDbObject {
             SpiceDbObject::Server(_) => "server".to_string(),
             SpiceDbObject::Channel(_) => "channel".to_string(),
             SpiceDbObject::User(_) => "user".to_string(),
+            SpiceDbObject::PermissionOverride(_) => "permission_override".to_string(),
         }
     }
 }
