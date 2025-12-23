@@ -3,13 +3,10 @@ use std::io::Result;
 use std::path::PathBuf;
 
 fn main() -> Result<()> {
-    // Get the workspace root (parent of core/)
-    let workspace_root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap())
-        .parent()
-        .unwrap()
-        .to_path_buf();
+    // Get the crate directory
+    let crate_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
-    let proto_dir = workspace_root.join("authz_proto");
+    let proto_dir = crate_dir.join("proto");
 
     // Configure tonic-build to compile the AuthZed protobuf files
     tonic_build::configure()
