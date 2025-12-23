@@ -1,7 +1,15 @@
 [package]
-name = "authz"
+name = "beep-authz"
 version = "0.1.0"
 edition = "2024"
+authors = ["hugo <hugo.ponthieu@etu.umontpellier.fr>"]
+license = "Apache-2.0"
+description = "Authorization library for Beep services"
+repository = "https://github.com/beep-industries/crates"
+documentation = "https://docs.rs/beep-authz"
+rust-version = "1.90"
+readme = "README.md"
+
 
 [dependencies]
 tonic = "0.13.0"
