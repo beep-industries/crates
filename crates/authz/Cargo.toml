@@ -1,6 +1,6 @@
 [package]
 name = "beep-authz"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["hugo <hugo.ponthieu@etu.umontpellier.fr>"]
 license = "Apache-2.0"
@@ -10,18 +10,18 @@ documentation = "https://docs.rs/beep-authz"
 rust-version = "1.90"
 readme = "README.md"
 include = [
-    "src/**/*",
-    "proto/**/*",
-    "build.rs",
-    "Cargo.toml",
-    "README.md",
-    "LICENSE*",
+  "src/**/*",
+  "proto/**/*",
+  "build.rs",
+  "Cargo.toml",
+  "README.md",
+  "LICENSE*",
 ]
 
 
 [dependencies]
 tonic = "0.13.0"
-prost= "0.13.0"
+prost = "0.13.0"
 prost-types = "0.13.0"
 clap = { version = "4.5.53", features = ["derive", "env"] }
 env = "1.0.1"

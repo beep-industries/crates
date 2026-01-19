@@ -4,15 +4,15 @@ use tokio::sync::RwLock;
 use tonic::{service::interceptor::InterceptedService, transport::Channel};
 
 use crate::{
-    AuthorizationError, PermissionsServiceClient,
     authzed::api::v1::{
-        CheckPermissionRequest, CheckPermissionResponse, ObjectReference, SubjectReference,
-        check_permission_response::Permissionship,
+        check_permission_response::Permissionship, CheckPermissionRequest, CheckPermissionResponse,
+        ObjectReference, SubjectReference,
     },
     config::SpiceDbConfig,
     grpc_auth::AuthInterceptor,
     object::SpiceDbObject,
     permission::{AuthorizationResult, Permissions},
+    AuthorizationError, PermissionsServiceClient,
 };
 
 /// Main SpiceDB client for performing authorization checks.
@@ -53,7 +53,7 @@ use crate::{
 /// # Ok(())
 /// # }
 /// ```
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct SpiceDbRepository {
     permissions:
         Arc<RwLock<PermissionsServiceClient<InterceptedService<Channel, AuthInterceptor>>>>,
