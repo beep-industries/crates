@@ -131,6 +131,26 @@ impl SpiceDbObject {
             SpiceDbObject::PermissionOverride(_) => "permission_override".to_string(),
         }
     }
+
+    /// Returns the object type for tracing purposes.
+    pub(crate) fn get_object_type(&self) -> &str {
+        match self {
+            SpiceDbObject::Server(_) => "server",
+            SpiceDbObject::Channel(_) => "channel",
+            SpiceDbObject::User(_) => "user",
+            SpiceDbObject::PermissionOverride(_) => "permission_override",
+        }
+    }
+
+    /// Returns the object ID for tracing purposes.
+    pub(crate) fn get_object_id(&self) -> &str {
+        match self {
+            SpiceDbObject::Server(id) => id,
+            SpiceDbObject::Channel(id) => id,
+            SpiceDbObject::User(id) => id,
+            SpiceDbObject::PermissionOverride(id) => id,
+        }
+    }
 }
 
 /// Converts a `SpiceDbObject` into a SpiceDB `ObjectReference`.
@@ -140,8 +160,8 @@ impl SpiceDbObject {
 impl Into<ObjectReference> for SpiceDbObject {
     fn into(self) -> ObjectReference {
         ObjectReference {
-            object_type: self.id(),
-            object_id: self.object_name(),
+            object_type: self.object_name(),
+            object_id: self.id(),
         }
     }
 }

@@ -96,7 +96,9 @@ impl SpiceDbRepository {
     /// - The endpoint URL is invalid
     /// - The connection to SpiceDB cannot be established
     /// - Network issues prevent communication with the server
+    #[tracing::instrument(skip(config), fields(endpoint = %config.endpoint))]
     pub async fn new(config: SpiceDbConfig) -> Result<Self, AuthorizationError> {
+        tracing::info!("Creating SpiceDB repository");
         let channel = Self::create_channel(&config).await?;
 
         // Always use an interceptor, even if token is empty
@@ -108,9 +110,11 @@ impl SpiceDbRepository {
             interceptor,
         )));
 
+        tracing::info!("SpiceDB repository created successfully");
         Ok(Self { permissions })
     }
 
+    #[tracing::instrument(skip(config), fields(endpoint = %config.endpoint))]
     async fn create_channel(config: &SpiceDbConfig) -> Result<Channel, AuthorizationError> {
         // Add http:// scheme if not present
         let endpoint_url =
@@ -120,14 +124,50 @@ impl SpiceDbRepository {
                 format!("http://{}", config.endpoint)
             };
 
-        let endpoint = Channel::from_shared(endpoint_url.clone())
-            .map_err(|e| AuthorizationError::ConnectionError { msg: e.to_string() })?;
+        tracing::debug!("Connecting to SpiceDB at {}", endpoint_url);
+        let endpoint = Channel::from_shared(endpoint_url.clone()).map_err(|e| {
+            tracing::error!(
+                error = %e,
+                endpoint = %config.endpoint,
+                "Invalid endpoint URL format"
+            );
+            AuthorizationError::ConnectionError { msg: e.to_string() }
+        })?;
 
-        let channel = endpoint
-            .connect()
-            .await
-            .map_err(|e| AuthorizationError::ConnectionError { msg: e.to_string() })?;
+        let channel = endpoint.connect().await.map_err(|e| {
+            let error_msg = e.to_string();
+            
+            // Check for common connection error patterns
+            if error_msg.contains("dns") || error_msg.contains("DNS") {
+                tracing::error!(
+                    error = %error_msg,
+                    endpoint = %config.endpoint,
+                    "Failed to resolve SpiceDB hostname - check endpoint configuration"
+                );
+            } else if error_msg.contains("Connection refused") || error_msg.contains("refused") {
+                tracing::error!(
+                    error = %error_msg,
+                    endpoint = %config.endpoint,
+                    "Connection refused - SpiceDB may not be running or endpoint is incorrect"
+                );
+            } else if error_msg.contains("timeout") || error_msg.contains("timed out") {
+                tracing::error!(
+                    error = %error_msg,
+                    endpoint = %config.endpoint,
+                    "Connection timeout - check network connectivity and firewall rules"
+                );
+            } else {
+                tracing::error!(
+                    error = %error_msg,
+                    endpoint = %config.endpoint,
+                    "Failed to connect to SpiceDB - check network connectivity"
+                );
+            }
+            
+            AuthorizationError::ConnectionError { msg: error_msg }
+        })?;
 
+        tracing::info!("Successfully connected to SpiceDB");
         Ok(channel)
     }
 
@@ -242,6 +282,7 @@ impl SpiceDbRepository {
     /// - [`check_permissions_raw`](Self::check_permissions_raw) - Lower-level API with more control
     /// - [`Permissions`] - Available permission types
     /// - [`SpiceDbObject`] - Resource and subject types
+    #[tracing::instrument(skip(self, resource, subject), fields(permission = %permission))]
     pub async fn check_permissions(
         &self,
         resource: impl Into<SpiceDbObject>,
@@ -250,10 +291,23 @@ impl SpiceDbRepository {
     ) -> AuthorizationResult {
         let resource: SpiceDbObject = resource.into();
         let subject: SpiceDbObject = subject.into();
+        tracing::debug!(
+            resource_type = resource.get_object_type(),
+            resource_id = resource.get_object_id(),
+            subject_type = subject.get_object_type(),
+            subject_id = subject.get_object_id(),
+            "Checking permissions"
+        );
         let permission: String = permission.to_string();
-        self.check_permissions_raw(resource, permission, subject)
+        let result: AuthorizationResult = self
+            .check_permissions_raw(resource, permission, subject)
             .await
-            .into()
+            .into();
+        tracing::info!(
+            has_permission = result.has_permissions(),
+            "Permission check completed"
+        );
+        result
     }
 
     /// Performs a raw permission check using SpiceDB object references and string permissions.
@@ -350,6 +404,7 @@ impl SpiceDbRepository {
     ///
     /// - [`check_permissions`](Self::check_permissions) - Higher-level, type-safe API
     /// - [SpiceDB CheckPermission API](https://buf.build/authzed/api/docs/main:authzed.api.v1#authzed.api.v1.PermissionsService.CheckPermission)
+    #[tracing::instrument(skip(self, resource, permission, subject))]
     pub async fn check_permissions_raw(
         &self,
         resource: impl Into<ObjectReference>,
@@ -358,13 +413,24 @@ impl SpiceDbRepository {
     ) -> Result<Permissionship, AuthorizationError> {
         let resource: ObjectReference = resource.into();
         let sub_object_reference: ObjectReference = subject.into();
+        let permission_str = permission.into();
+
+        tracing::debug!(
+            resource_type = %resource.object_type,
+            resource_id = %resource.object_id,
+            subject_type = %sub_object_reference.object_type,
+            subject_id = %sub_object_reference.object_id,
+            permission = %permission_str,
+            "Performing raw permission check"
+        );
+
         let subject = SubjectReference {
             object: Some(sub_object_reference),
             ..Default::default()
         };
         let check_request = CheckPermissionRequest {
             resource: Some(resource),
-            permission: permission.into(),
+            permission: permission_str,
             subject: Some(subject),
             ..Default::default()
         };
@@ -374,9 +440,47 @@ impl SpiceDbRepository {
             .await
             .check_permission(check_request)
             .await
-            .map_err(|_| AuthorizationError::Unauthorized)?
+            .map_err(|e| {
+                let error_msg = e.to_string();
+                let error_code = e.code();
+                
+                match error_code {
+                    tonic::Code::Unauthenticated => {
+                        tracing::error!(
+                            error = %error_msg,
+                            error_code = ?error_code,
+                            "SpiceDB authentication failed - check your token"
+                        );
+                    }
+                    tonic::Code::PermissionDenied => {
+                        tracing::warn!(
+                            error = %error_msg,
+                            error_code = ?error_code,
+                            "Permission denied by SpiceDB"
+                        );
+                    }
+                    tonic::Code::Unavailable => {
+                        tracing::error!(
+                            error = %error_msg,
+                            error_code = ?error_code,
+                            "SpiceDB service unavailable - check connection"
+                        );
+                    }
+                    _ => {
+                        tracing::warn!(
+                            error = %error_msg,
+                            error_code = ?error_code,
+                            "Permission check failed"
+                        );
+                    }
+                }
+                
+                AuthorizationError::Unauthorized
+            })?
             .into_inner();
 
-        Ok(check_response.permissionship())
+        let permissionship = check_response.permissionship();
+        tracing::debug!("Permission check result: {:?}", permissionship);
+        Ok(permissionship)
     }
 }
