@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{AuthorizationError, authzed::api::v1::check_permission_response::Permissionship};
+use crate::{authzed::api::v1::check_permission_response::Permissionship, AuthorizationError};
 
 /// Enumeration of available permissions in the authorization system.
 ///
@@ -99,6 +99,8 @@ pub enum Permissions {
     ///
     /// Allows attaching files, images, and other media to messages.
     AttachFiles,
+
+    View,
 }
 
 impl Display for Permissions {
@@ -116,6 +118,7 @@ impl Display for Permissions {
             Permissions::ChangeNickname => write!(f, "change_nickname"),
             Permissions::ManageMessages => write!(f, "manage_message"),
             Permissions::AttachFiles => write!(f, "attach_files"),
+            Permissions::View => write!(f, "view"),
         }
     }
 }
