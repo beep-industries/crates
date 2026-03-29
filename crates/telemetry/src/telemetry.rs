@@ -50,13 +50,9 @@ fn init_meter_provider() -> Result<SdkMeterProvider, TelemetryError> {
         .with_interval(std::time::Duration::from_secs(30))
         .build();
 
-    let stdout_reader =
-        PeriodicReader::builder(opentelemetry_stdout::MetricExporter::default()).build();
-
     let meter_provider = MeterProviderBuilder::default()
         .with_resource(resource())
         .with_reader(reader)
-        .with_reader(stdout_reader)
         .build();
 
     global::set_meter_provider(meter_provider.clone());
